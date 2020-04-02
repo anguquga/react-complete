@@ -1,9 +1,44 @@
 import React, {Component} from 'react';
-import classes from './App.module.css';
-import Persons from '../components/Persons/Persons';
 
+import classes from './App.module.css';
+
+import Persons from '../components/Persons/Persons';
+import Cockpit from '../components/Cockpit/Cockpit';
 
 class App extends Component {
+
+    constructor(props) {
+        super(props);
+        console.log('[App.js] constructor');
+    }
+
+    static getDerivedStateFromProps(props, state) {
+        console.log('[App.js] getDerivedStateFromProps', props);
+        return state;
+    }
+
+    componentDidMount() {
+        console.log('[App.js] componentDidMount');
+    }
+
+    shouldComponentUpdate(nextProps, nextState, nextContext) {
+        console.log('[App.js] shouldComponentUpdate');
+        return true;
+    }
+
+    getSnapshotBeforeUpdate(prevProps, prevState) {
+        console.log('[App.js] getSnapshotBeforeUpdate');
+        return {message: 'Snapshot'};
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        console.log('[App.js] componentDidUpdate');
+        console.log(snapshot);
+    }
+
+    componentWillUnmount() {
+        console.log('[App.js] componentWillUnmount');
+    }
 
     state = {
         persons: [
@@ -28,8 +63,10 @@ class App extends Component {
         const personsT = [...this.state.persons];
         personsT[personIndex] = personT;
 
-        this.setState({
-            persons: personsT
+        this.setState((prevState, props) => {
+            return {
+                persons: personsT
+            };
         });
     };
 
@@ -47,43 +84,27 @@ class App extends Component {
 
 
     render() {
-
+        console.log('[App.js] render');
         let persons = null;
-        let btnClass = '';
 
         if (this.state.showPersons) {
             persons = (
-                <div>
                     <Persons
                         persons={this.state.persons}
                         clicked={this.deletePersonHandler}
                         changed={this.nameChangedHandler}/>
-                </div>
             );
-
-            btnClass = classes.Red;
-        }
-
-        const classesT = [];
-
-        if (this.state.persons.length <= 2) {
-            classesT.push(classes.red);
-        }
-        if (this.state.persons.length <= 1) {
-            classesT.push(classes.bold);
         }
 
         return (
             <div className={classes.App}>
-                <h1>Hi, I'm a React App</h1>
-                <p className={classesT.join(' ')}>This is really working!</p>
-                <button
-                    className={btnClass}
-                    onClick={this.togglePersonsHandler}>Switch Name
-                </button>
-                {
-                    persons
-                }
+                <Cockpit
+                    title={this.props.appTitle}
+                    persons={this.state.persons}
+                    showPersons={this.state.showPersons}
+                    clicked={this.togglePersonsHandler}/>
+
+                {persons}
             </div>
         );
     }
