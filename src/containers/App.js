@@ -5,6 +5,8 @@ import classes from './App.module.css';
 import Persons from '../components/Persons/Persons';
 import Cockpit from '../components/Cockpit/Cockpit';
 
+import AuthContext from '../context/auth-context';
+
 class App extends Component {
 
     constructor(props) {
@@ -46,7 +48,8 @@ class App extends Component {
             {id: 'id2', name: 'Manu', age: 29},
             {id: 'id3', name: 'Stephanie', age: 26}
         ],
-        showPersons: false
+        showPersons: false,
+        authenticated: false
     };
 
     nameChangedHandler = (event, id) => {
@@ -82,6 +85,10 @@ class App extends Component {
         this.setState({persons: personsT});
     };
 
+    loginHandler = () => {
+        this.setState({authenticated: true});
+    };
+
 
     render() {
         console.log('[App.js] render');
@@ -89,22 +96,30 @@ class App extends Component {
 
         if (this.state.showPersons) {
             persons = (
-                    <Persons
-                        persons={this.state.persons}
-                        clicked={this.deletePersonHandler}
-                        changed={this.nameChangedHandler}/>
+
+                <Persons
+                    persons={this.state.persons}
+                    clicked={this.deletePersonHandler}
+                    changed={this.nameChangedHandler}/>
             );
         }
 
         return (
             <div className={classes.App}>
-                <Cockpit
-                    title={this.props.appTitle}
-                    persons={this.state.persons}
-                    showPersons={this.state.showPersons}
-                    clicked={this.togglePersonsHandler}/>
+                <AuthContext.Provider
+                    value={{
+                        authenticated: this.state.authenticated,
+                        login: this.loginHandler
+                    }}
+                >
+                    <Cockpit
+                        title={this.props.appTitle}
+                        persons={this.state.persons}
+                        showPersons={this.state.showPersons}
+                        clicked={this.togglePersonsHandler}/>
 
-                {persons}
+                    {persons}
+                </AuthContext.Provider>
             </div>
         );
     }

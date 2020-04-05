@@ -1,19 +1,24 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useContext} from 'react';
 
 import classes from "./Cockpit.module.css";
 
+import PropTypes from 'prop-types';
+import AuthContext from '../../context/auth-context';
 
 const cockpit = (props) => {
 
+    const authContexto = useContext(AuthContext);
+
     useEffect(() => {
         console.log('[Cockpit.js] useEffect');
+        console.log('Authenticated: ' + authContexto.authenticated);
         setTimeout(() => {
             alert('Saved data to Cloud');
         }, 1000);
+
         return () => {
             console.log('[Cockpit.js] cleanup work');
         }
-
     }, []);
 
     let btnClass = '';
@@ -40,8 +45,17 @@ const cockpit = (props) => {
                 className={btnClass}
                 onClick={props.clicked}>Switch Name
             </button>
+            <AuthContext.Consumer>
+                {context => <button onClick={context.login}>Login</button>}
+            </AuthContext.Consumer>
+
         </div>
     );
+};
+
+cockpit.propTypes = {
+    clicked: PropTypes.func,
+    title: PropTypes.string
 };
 
 export default cockpit;
