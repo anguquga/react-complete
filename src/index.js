@@ -4,5 +4,17 @@ import './index.css';
 import App from './containers/App';
 import registerServiceWorker from './registerServiceWorker';
 
-ReactDOM.render(<App appTitle="Persons Manager"/>, document.getElementById('root'));
+import {createStore, combineReducers} from 'redux';
+import {Provider} from 'react-redux';
+import generalReducer from "./store/reducers/generalReducer";
+import personReducer from "./store/reducers/personReducer";
+
+const rootReducer = combineReducers({
+    generalReducer: generalReducer,
+    personReducer: personReducer
+});
+
+const store = createStore(rootReducer);
+
+ReactDOM.render(<Provider store={store}><App /></Provider>, document.getElementById('root'));
 registerServiceWorker();

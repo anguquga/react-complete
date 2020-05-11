@@ -6,6 +6,9 @@ import Persons from '../components/Persons/Persons';
 import Cockpit from '../components/Cockpit/Cockpit';
 
 import AuthContext from '../context/auth-context';
+import {connect} from 'react-redux';
+
+import * as actionTypes from '../store/actions';
 
 class App extends Component {
 
@@ -43,34 +46,7 @@ class App extends Component {
     }
 
     state = {
-        persons: [
-            {id: 'id1', name: 'Max', age: 28},
-            {id: 'id2', name: 'Manu', age: 29},
-            {id: 'id3', name: 'Stephanie', age: 26}
-        ],
         showPersons: false,
-        authenticated: false
-    };
-
-    nameChangedHandler = (event, id) => {
-        const personIndex = this.state.persons.findIndex(p => {
-            return p.id === id;
-        });
-
-        const personT = {
-            ...this.state.persons[personIndex] /*... crea una copia de todos los atributos y nueva instancia de Person en ese indice*/
-        };
-
-        personT.name = event.target.value;
-
-        const personsT = [...this.state.persons];
-        personsT[personIndex] = personT;
-
-        this.setState((prevState, props) => {
-            return {
-                persons: personsT
-            };
-        });
     };
 
     togglePersonsHandler = () => {
@@ -78,16 +54,10 @@ class App extends Component {
         this.setState({showPersons: !doesShow});
     };
 
-    deletePersonHandler = (personIndex) => {
-        //const personsT = this.state.persons.slice();
-        const personsT = [...this.state.persons];
-        personsT.splice(personIndex, 1);
-        this.setState({persons: personsT});
-    };
-
+    /*
     loginHandler = () => {
         this.setState({authenticated: true});
-    };
+    };*/
 
 
     render() {
@@ -98,9 +68,9 @@ class App extends Component {
             persons = (
 
                 <Persons
-                    persons={this.state.persons}
-                    clicked={this.deletePersonHandler}
-                    changed={this.nameChangedHandler}/>
+                    persons={this.props.persons}
+                    clicked={this.props.onDeletePerson}
+                    changed={this.props.onPersonNameChanged}/>
             );
         }
 
@@ -108,13 +78,13 @@ class App extends Component {
             <div className={classes.App}>
                 <AuthContext.Provider
                     value={{
-                        authenticated: this.state.authenticated,
-                        login: this.loginHandler
+                        authenticated: this.props.genAuth,
+                        login: this.props.onLogin
                     }}
                 >
                     <Cockpit
                         title={this.props.appTitle}
-                        persons={this.state.persons}
+                        persons={this.props.persons}
                         showPersons={this.state.showPersons}
                         clicked={this.togglePersonsHandler}/>
 
@@ -125,4 +95,19 @@ class App extends Component {
     }
 }
 
-export default App;
+const mapStateToProps = state => {
+    return {
+        genAuth: state.generalReducer.authenticated,  //ctr es el nombre del Reducer en index.js para counter
+        persons: state.personReducer.persons
+    };
+}
+
+const mapDispatchToProps = dispatch => {
+    return {
+        onLogin: () => dispatch({type: actionTypes.LOGIN}),
+        onDeletePerson: (personIndex) => dispatch({type: actionTypes.DELETE_PERSON, personIndex:personIndex}),
+        onPersonNameChanged: (event, id) => dispatch({type: actionTypes.PERSON_NAME_CHANGED, id:id, value: event.target.value}),
+    };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);
